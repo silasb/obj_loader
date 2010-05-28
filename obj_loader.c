@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 #include "obj_loader.h"
 
 // stores the current value of the token if it is a number
@@ -15,16 +16,18 @@ FILE *fp = NULL;
 
 int obj_load(char *filename, Vertex **vertices)
 {
-
   if((fp = fopen(filename, "r")) == NULL) {
     fprintf(stderr, "Error loading file: %s\n", filename);
     return -1;
   }
 
   int vertex_num = 0;
-  while((token = _getToken(fp)) == VERTEX_T)
+  while((token = _getToken(fp)) != NULL_T) // NULL_T is EOF
   {
-    vertices[vertex_num++] = _getVertex();
+    if(token == VERTEX_T)
+      vertices[vertex_num++] = _getVertex();
+    else
+      ;
   }
 
   fclose(fp);
@@ -39,10 +42,13 @@ Vertex *_getVertex()
 
   token = _getToken(fp); // gets x
   vertex->x = _getValue();
+  printf("(%f ", vertex->x);
   token = _getToken(fp); // gets y
   vertex->y = _getValue();
+  printf("%f ", vertex->y);
   token = _getToken(fp); // gets z
   vertex->z = _getValue();
+  printf("%f)\n", vertex->z);
 
   return vertex;
 }
@@ -51,7 +57,7 @@ token_t _getToken(FILE *fp)
 {
   str_loc = 0;
   char c;
-  while((c = getc(fp)) == ' ' || c == '\n' || c == '\t')
+  while((c = getc(fp)) == ' ' || c == '\n' || c == '\t' || c == '\r')
     ;
   if(c == 'v')
     return VERTEX_T;
@@ -78,6 +84,31 @@ token_t _getToken(FILE *fp)
       ungetc(c, fp);
       return INT_T;
     }
+  }
+  else if(c == '#') {
+    // we have a comment
+    if((c = getc(fp) == ' '))
+      ;
+    else
+      ungetc(c, fp);
+    char comment[80];
+    fgets(comment, 80, fp);
+    return COMMENT_T;
+  }
+  else if(c == 'm') {
+    ungetc(c, fp);
+    char command[80];
+    char filename[80];
+    fscanf(fp, "%s", command);
+    if(strcmp(command, "mtllib") == 0) {
+      fscanf(fp, " %s", filename);
+    }
+    return MAT_T;
+  }
+  else if(c == 'o') {
+    char temp[80];
+    fgets(temp, 80, fp);
+    return OBJNAME_T;
   }
   else
     return NULL_T;

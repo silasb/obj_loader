@@ -13,8 +13,8 @@ endif
 
 # flags
 CPPFLAGS = -DVERSION=\"${VERSION}\" -std=c99
-CFLAGS = -g -pedantic -Wall -O0 ${INC} ${CPPFLAGS}
-LDFLAGS = -g ${LIBS}
+CFLAGS = -ggdb -pedantic -Wall ${INC} ${CPPFLAGS}
+LDFLAGS = -ggdb ${LIBS}
 
 # compiler and linker
 CC = gcc

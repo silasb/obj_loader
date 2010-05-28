@@ -16,7 +16,10 @@ typedef enum {
   VERTEX_T,
   FACE_T,
   FLOAT_T,
-  INT_T
+  INT_T,
+  COMMENT_T,
+  MAT_T,
+  OBJNAME_T
 } token_t;
 
 typedef struct {
