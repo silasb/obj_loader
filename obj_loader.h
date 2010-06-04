@@ -19,7 +19,10 @@ typedef enum {
   INT_T,
   COMMENT_T,
   MAT_T,
-  OBJNAME_T
+  OBJNAME_T,
+  VERTEX_NORM_T,
+  GROUP_NAME_T,
+  USEMAT_T
 } token_t;
 
 typedef struct {

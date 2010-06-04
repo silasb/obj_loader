@@ -24,8 +24,15 @@ int obj_load(char *filename, Vertex **vertices)
   int vertex_num = 0;
   while((token = _getToken(fp)) != NULL_T) // NULL_T is EOF
   {
-    if(token == VERTEX_T)
+    if(token == VERTEX_T) {
+      printf("v ");
       vertices[vertex_num++] = _getVertex();
+    }
+    else if(token == VERTEX_NORM_T) {
+      Vertex *test;
+      printf("vn ");
+      test = _getVertex();
+    }
     else
       ;
   }
@@ -40,14 +47,10 @@ Vertex *_getVertex()
   Vertex *vertex;
   vertex = malloc(sizeof(*vertex));
 
-  token = _getToken(fp); // gets x
-  vertex->x = _getValue();
+  fscanf(fp, "%f %f %f", &vertex->x, &vertex->y, &vertex->z);
+
   printf("(%f ", vertex->x);
-  token = _getToken(fp); // gets y
-  vertex->y = _getValue();
   printf("%f ", vertex->y);
-  token = _getToken(fp); // gets z
-  vertex->z = _getValue();
   printf("%f)\n", vertex->z);
 
   return vertex;
@@ -59,32 +62,14 @@ token_t _getToken(FILE *fp)
   char c;
   while((c = getc(fp)) == ' ' || c == '\n' || c == '\t' || c == '\r')
     ;
-  if(c == 'v')
+  if(c == 'v') {
+    c = getc(fp);
+    if(c == 'n')
+      return VERTEX_NORM_T;
     return VERTEX_T;
+  }
   else if(c == 'f')
     return FACE_T;
-  else if(isdigit(c)) {
-    str_value[str_loc++] = c;
-    if((c = getc(fp)) == '.' || isdigit(c)) {
-      str_value[str_loc++] = c;
-      return _getFloat(fp);
-    } else {
-      ungetc(c, fp);
-      return INT_T;
-    }
-  }
-  else if(c == '-') {
-    str_value[str_loc++] = '-';
-    c = getc(fp);
-    str_value[str_loc++] = c;
-    if((c = getc(fp)) == '.' || isdigit(c)) {
-      str_value[str_loc++] = c;
-      return _getFloat(fp);
-    } else {
-      ungetc(c, fp);
-      return INT_T;
-    }
-  }
   else if(c == '#') {
     // we have a comment
     if((c = getc(fp) == ' '))
@@ -110,6 +95,22 @@ token_t _getToken(FILE *fp)
     fgets(temp, 80, fp);
     return OBJNAME_T;
   }
+  else if(c == 'g') {
+    // group name
+    char group_name[80];
+    fscanf(fp, "%s", group_name);
+    return GROUP_NAME_T;
+  }
+  else if(c == 'u') {
+    ungetc(c, fp);
+    char temp[80];
+    char mat[80];
+    fgets(temp, 80, fp);
+    if(strcmp(temp, "usemtl") == 0) {
+      fscanf(fp, "%s", mat);
+    }
+    return USEMAT_T;
+  }
   else
     return NULL_T;
 }
@@ -119,7 +120,13 @@ token_t _getFloat(FILE *fp)
   char c;
   while((c = getc(fp)) && isdigit(c))
     str_value[str_loc++] = c;
-  ungetc(c, fp);
+  if(c == 'e')
+  {
+    c = getc(fp);
+    if(c == '+')
+      ;
+  } else
+    ungetc(c, fp);
   str_value[str_loc++] = '\0';
   return FLOAT_T;
 }
