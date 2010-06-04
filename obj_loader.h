@@ -2,6 +2,7 @@
 #define OBJ_LOADER_H
 
 #include <stdio.h>
+#include "entity.h"
 
 /*
  * variables
@@ -25,24 +26,16 @@ typedef enum {
   USEMAT_T
 } token_t;
 
-typedef struct {
-  float x, y, z;
-} Vertex; 
-
-typedef struct {
-  int vert1, vert2, vert3, vert4;
-} Face;
-
 /*
  * public prototypes
  */
-int obj_load(char *filename, Vertex **);
+int obj_load(char *filename, entity_t *);
 
 /*
  * private prototypes
  */
-Vertex *_getVertex(void);
-Face   *_getFace();
+void _getVertex(Vertex *v);
+void _getFace(int *, int *, int *);
 token_t _getToken(FILE *);
 token_t _getFloat(FILE *);
 float   _getValue(void);

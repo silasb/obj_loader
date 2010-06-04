@@ -14,62 +14,65 @@ int str_loc = 0;
 token_t token;
 FILE *fp = NULL;
 
-int obj_load(char *filename, Vertex **vertices)
+int obj_load(char *filename, entity_t *e)
 {
   if((fp = fopen(filename, "r")) == NULL) {
     fprintf(stderr, "Error loading file: %s\n", filename);
     return -1;
   }
-
+  Vertex vertices[100];
+  int faces[100][3];
+  
   int vertex_num = 0;
   while((token = _getToken(fp)) != NULL_T) // NULL_T is EOF
   {
     if(token == VERTEX_T) {
       printf("v ");
-      vertices[vertex_num++] = _getVertex();
+      _getVertex(&vertices[vertex_num]);
+      vertex_num++;
     }
     else if(token == VERTEX_NORM_T) {
-      Vertex *test;
-      printf("vn ");
-      test = _getVertex();
+      //Vertex *test;
+      //printf("vn ");
+      //test = _getVertex();
     }
     else if(token == FACE_T) {
-      Face *face;
       printf("f ");
-      face = _getFace();
+      _getFace(&faces[e->nPolygons][0], &faces[e->nPolygons][1], &faces[e->nPolygons][2]);
+      e->nPolygons++;
     }
     else
       ;
   }
 
   fclose(fp);
+  
+  e->pList = (polygon_t *)malloc(e->nPolygons * sizeof(polygon_t));
+  for(int i = 0; i < e->nPolygons; i++) {
+    for(int j = 0; j < 3; j++) {
+     e->pList->v[i].x = vertices[faces[i][j]-1].x;
+     e->pList->v[i].y = vertices[faces[i][j]-1].y;
+     e->pList->v[i].z = vertices[faces[i][j]-1].z;
+    }
+  }
+  
+  for(int i = 0; i < e->nPolygons; i++) {
+    printf("%f %f %f\n", e->pList->v[i].x,e->pList->v[i].y,e->pList->v[i].z);
+  }
 
   return 0;
 }
 
-Vertex *_getVertex()
+void _getVertex(Vertex *v)
 {
-  Vertex *vertex;
-  vertex = malloc(sizeof(*vertex));
-
-  fscanf(fp, "%f %f %f", &vertex->x, &vertex->y, &vertex->z);
-
-  printf("(%f ", vertex->x);
-  printf("%f ", vertex->y);
-  printf("%f)\n", vertex->z);
-
-  return vertex;
+  fscanf(fp, "%f %f %f", &v->x, &v->y, &v->z);
+  printf("%f %f %f\n", v->x, v->y, v->z);
 }
 
-Face *_getFace() {
-  Face *face;
-  face = malloc(sizeof(*face));
+void _getFace(int *v1, int *v2, int *v3) {
 
-  fscanf(fp, " %i %i %i %i", &face->vert1, &face->vert2, &face->vert3, &face->vert4);
-
-  printf("%i %i %i %i\n", face->vert1, face->vert2, face->vert3, face->vert4);
-
-  return face;
+  fscanf(fp, " %i %i %i", v1, v2, v3 );
+  printf("%i %i %i\n", *v1, *v2, *v3);
 }
 
 token_t _getToken(FILE *fp)
