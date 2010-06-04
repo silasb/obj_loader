@@ -19,6 +19,5 @@ int main(int argc, char *argv[])
 
 //  printf("%f %f %f\n", vertices[0]->x, vertices[0]->y, vertices[0]->z);
 
-  printf("Testing\n");
   free(vertices);
 }

@@ -29,6 +29,10 @@ typedef struct {
   float x, y, z;
 } Vertex; 
 
+typedef struct {
+  int vert1, vert2, vert3, vert4;
+} Face;
+
 /*
  * public prototypes
  */
@@ -37,7 +41,8 @@ int obj_load(char *filename, Vertex **);
 /*
  * private prototypes
  */
-Vertex  *_getVertex(void);
+Vertex *_getVertex(void);
+Face   *_getFace();
 token_t _getToken(FILE *);
 token_t _getFloat(FILE *);
 float   _getValue(void);

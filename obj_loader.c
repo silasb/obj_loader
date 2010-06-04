@@ -33,6 +33,11 @@ int obj_load(char *filename, Vertex **vertices)
       printf("vn ");
       test = _getVertex();
     }
+    else if(token == FACE_T) {
+      Face *face;
+      printf("f ");
+      face = _getFace();
+    }
     else
       ;
   }
@@ -54,6 +59,17 @@ Vertex *_getVertex()
   printf("%f)\n", vertex->z);
 
   return vertex;
+}
+
+Face *_getFace() {
+  Face *face;
+  face = malloc(sizeof(*face));
+
+  fscanf(fp, " %i %i %i %i", &face->vert1, &face->vert2, &face->vert3, &face->vert4);
+
+  printf("%i %i %i %i\n", face->vert1, face->vert2, face->vert3, face->vert4);
+
+  return face;
 }
 
 token_t _getToken(FILE *fp)
@@ -110,6 +126,10 @@ token_t _getToken(FILE *fp)
       fscanf(fp, "%s", mat);
     }
     return USEMAT_T;
+  }
+  else if(c == 's')
+  {
+    return 1;
   }
   else
     return NULL_T;
